@@ -1,0 +1,44 @@
+{
+  "name": "chat2chat-v3",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.1.0",
+    "@supabase/supabase-js": "^2.39.6",
+    "bcryptjs": "^2.4.3",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "emoji-picker-react": "^4.5.16",
+    "firebase": "^10.7.0",
+    "firebase-admin": "^12.0.0",
+    "lucide-react": "^0.303.0",
+    "moment": "^2.30.1",
+    "mongoose": "^8.2.1",
+    "next": "14.0.3",
+    "next-auth": "^4.24.5",
+    "next-intl": "^3.7.0",
+    "next-themes": "^0.2.1",
+    "pusher": "^5.2.0",
+    "pusher-js": "^8.4.0-rc2",
+    "random-avatar-generator": "^2.0.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-hot-toast": "^2.4.1",
+    "react-icons": "^4.12.0",
+    "tailwind-merge": "^2.2.0",
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^4.4.7"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.0.1",
+    "daisyui": "^4.4.19",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0"
+  }
+}
