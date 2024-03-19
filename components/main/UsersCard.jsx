@@ -21,6 +21,7 @@ export default function UsersCard({
   found,
   purpose,
   avatarUrl,
+  component,
   lastImage,
   newMessage,
   createChat,
@@ -69,7 +70,11 @@ export default function UsersCard({
         <div className="flex-1">
           {/* name and last message sent time */}
           <div className="flex items-center justify-between">
-            <h2 className="text-md font-semibold truncate text-base-content max-w-[120px] truncate">
+            <h2 
+              className={`
+                text-md font-semibold truncate text-base-content truncate
+                ${component == 'drawer' ? 'max-w-[150px]' : "max-w-[120px]"}
+              `}>
               {name}
             </h2>
             <div className="text-xs text-base-content truncate time-stamp-deskto max-w-[60px] truncate">

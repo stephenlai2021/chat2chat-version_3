@@ -393,6 +393,7 @@ export default function ChatList() {
                 ></label>
                 <ul className="pt-4 w-80 min-h-full bg-base-200 text-base-content">
                   <UsersCard
+                    component="drawer"
                     name={userData?.name}
                     email={userData?.email}
                     avatarUrl={userData?.avatarUrl}

@@ -6,6 +6,9 @@ import { useState, useRef, useEffect } from "react";
 /* zustand */
 import { useStore } from "@/zustand/store";
 
+/* utils */
+import { toast } from "react-hot-toast";
+
 /* firebase */
 import { firestore, storage } from "@/lib/firebase/client";
 import {
@@ -28,6 +31,7 @@ export default function EditProfileModal({ id, userData }) {
   const [file, setFile] = useState(null);
   const [user, setUser] = useState(null);
   const [image, setImage] = useState(null);
+  const [userName, setUserName] = useState(userData.name);
   const [imagePreview, setImagePreview] = useState(null);
   const [showUploadBtn, setShowUploadBtn] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(null);
@@ -56,63 +60,118 @@ export default function EditProfileModal({ id, userData }) {
     reader.readAsDataURL(selectedFile);
   };
 
+  /*
+    -- Mode --
+    00 - !file && userName == userData?.name
+    01 - !file && userName != userData?.name
+    10 - file && userName == userData?.name
+    11 - file && userName != userData?.name
+  */
   const handleUpload = async () => {
-    if (!file) {
-      console.error("No file selected.");
+    // Neither user name nor avatar updated
+    if (!file && userName == userData?.name) {
+      console.error("No file selected and name is not updated");
+      toast.error(`Neither file or name is Updated !`, {
+        position: "bottom-center",
+      });
       return;
     }
-    setShowUploadBtn(false);
 
-    const storageRef = ref(storage, `images/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
-      },
-      (error) => {
-        console.error("Error uploading file:", error.message);
-      },
-      () => {
-        // Upload complete, get download URL and log it
-        getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-          // Reset file && upload progress state and update message with download URL
-          setFile(null);
-          setUploadProgress(null);
-          // console.log("File available at", downloadURL);
-
-          setImage(downloadURL);
-          setUserImage(downloadURL);
-          // console.log("image | downloadURL: ", image);
-
-          document.getElementById("editProfileModal").close();
-          // imageFileInputBoxRef.current.value = "";
-
-          // Update firestore user data
-          await updateDoc(doc(firestore, "users", userDataStore?.email), {
-            avatarUrl: downloadURL,
-          });
-
-          const chatroomsQuery = query(
-            collection(firestore, "chatrooms"),
-            where("users", "array-contains", userDataStore?.id)
-          );
-          const querySnapshot = await getDocs(chatroomsQuery);
-          querySnapshot.forEach(async (document) => {
-            console.log(document.id, document.data());
-            await updateDoc(doc(firestore, "chatrooms", document.id), {
-              [`usersData.${userDataStore?.id}.avatarUrl`]: downloadURL,
-            });
-          });
-
-          // Clear image preview
-          // setImagePreview(null);
-        });
-      }
+    const chatroomsQuery = query(
+      collection(firestore, "chatrooms"),
+      where("users", "array-contains", userData?.id)
     );
+    const querySnapshot = await getDocs(chatroomsQuery);
+
+    // update user name only
+    if (!file && userName != userData?.name) {
+      await updateDoc(doc(firestore, "users", userData?.email), {
+        name: userName,
+      });
+      querySnapshot.forEach(async (document) => {
+        console.log(document.id, document.data());
+        await updateDoc(doc(firestore, "chatrooms", document.id), {
+          [`usersData.${userData?.id}.name`]: userName,
+        });
+      });
+      console.log("user name updated successfully !");
+      toast(`User name updated successfully`, {
+        icon: "🥰",
+        position: "bottom-center",
+      });
+      return;
+    }
+
+    if (file) {
+      setShowUploadBtn(false);
+
+      const storageRef = ref(storage, `images/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        },
+        (error) => {
+          console.error("Error uploading file:", error.message);
+        },
+        () => {
+          // Upload complete, get download URL and log it
+          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+            // Reset file && upload progress state and update message with download URL
+            setFile(null);
+            setUploadProgress(null);            
+            setImage(downloadURL);
+            setUserImage(downloadURL);
+
+            // Update user avatar only
+            if (userName == userData?.name) {
+              await updateDoc(doc(firestore, "users", userData?.email), {
+                avatarUrl: downloadURL,
+              });
+              querySnapshot.forEach(async (document) => {
+                console.log(document.id, document.data());
+                await updateDoc(doc(firestore, "chatrooms", document.id), {
+                  [`usersData.${userData?.id}.avatarUrl`]: downloadURL
+                });
+              });
+              console.log("User avatar updated successfully !");
+              toast(`User avatar updated successfully !`, {
+                icon: "🥰",
+                position: "bottom-center",
+              });
+              setImagePreview(null)
+              return;
+            }
+
+            // Update both user name && avatar
+            if (userName != userData?.name) {
+              await updateDoc(doc(firestore, "users", userData?.email), {
+                name: userName,
+                avatarUrl: downloadURL,
+              });
+              querySnapshot.forEach(async (document) => {
+                console.log(document.id, document.data());
+                await updateDoc(doc(firestore, "chatrooms", document.id), {
+                  [`usersData.${userData?.id}.name`]: userName,
+                  [`usersData.${userData?.id}.avatarUrl`]: downloadURL
+                });
+              });
+              console.log("User avatar and name updated successfully !");
+              toast(`User avatar and name updated successfully !`, {
+                icon: "🥰",
+                position: "bottom-center",
+              });
+              setImagePreview(null)
+              return;
+            }
+          });
+        }
+      );
+    }
   };
 
   const handleClose = () => {
@@ -120,8 +179,6 @@ export default function EditProfileModal({ id, userData }) {
     // imageFileInputBoxRef.current.value = "";
     document.getElementById("editProfileModal").close();
   };
-
-  const handleInputChange = () => {}
 
   return (
     <dialog id={id} className="modal">
@@ -206,7 +263,7 @@ export default function EditProfileModal({ id, userData }) {
                   src={imagePreview}
                   className={`object-cover rounded-full w-[100px] h-[100px]`}
                 />
-                <div
+                {/* <div
                   className={`
                     backdrop-opacity-30 backdrop-invert bg-base-100/30 rounded-full w-[40px] h-[40px]
                     absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] hover:cursor-pointer
@@ -219,7 +276,7 @@ export default function EditProfileModal({ id, userData }) {
                     `}
                     onClick={handleUpload}
                   />
-                </div>
+                </div> */}
                 <div
                   className={`
                     backdrop-opacity-30 backdrop-invert bg-base-100/30 rounded-full w-[40px] h-[40px]
@@ -257,8 +314,7 @@ export default function EditProfileModal({ id, userData }) {
                   src={imagePreview}
                   className={`object-cover rounded-full w-[100px] h-[100px]`}
                 />
-                {/* ${imagePreview == null ? "hidden" : ""}  */}
-                <div
+                {/* <div
                   className={`
                     backdrop-opacity-30 backdrop-invert bg-base-100/30 rounded-full w-[40px] h-[40px]
                     absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] hover:cursor-pointer
@@ -271,7 +327,7 @@ export default function EditProfileModal({ id, userData }) {
                     `}
                     onClick={handleUpload}
                   />
-                </div>
+                </div> */}
                 <div
                   className={`
                     backdrop-opacity-30 backdrop-invert bg-base-100/30 rounded-full w-[40px] h-[40px]
@@ -305,37 +361,39 @@ export default function EditProfileModal({ id, userData }) {
             <div
               className={`relative flex justify-center mt-3
               `}
-              >
-              {/* ${isSearch ? "my-3" : "my-1"} */}
+            >
               <input
                 type="text"
-                value={userData?.name}
-                // autoFocus
+                value={userName}
+                autoFocus
                 onFocus={(e) => e.currentTarget.select()}
-                onChange={handleInputChange}
+                // onChange={handleInputChange}
+                onChange={(e) => setUserName(e.target.value)}
                 placeholder="Name"
                 className={`
-                px-3 bg-base-300 py-3 rounded-xl outline-none w-full
+                  px-3 bg-base-300 py-3 rounded-xl outline-none w-full
+                  flex justify-cente text-center
                 `}
-                />
-                {/* ${isSearch ? "block" : "hidden"} */}
-              <IoCloseCircleOutline
+              />
+              {/* <IoCloseCircleOutline
                 className={`
                 w-[22px] h-[22px] absolute top-[50%] translate-y-[-50%] right-3 hover:cursor-pointer
                 `}
                 onClick={() => setIsSearch(false)}
-                />
-                {/* ${!searchTerm && isSearch ? "block" : "hidden"} */}
+              /> */}
             </div>
           </div>
         </div>
 
         {/* Close Button */}
-        {/* <div className="modal-action">
-          <button className="btn" onClick={handleClose}>
+        <div className="modal-action flex justify-center ">
+          {/* <button className="btn" onClick={handleClose}>
             Close
+          </button> */}
+          <button className="btn bg-neutral" onClick={handleUpload}>
+            Update
           </button>
-        </div> */}
+        </div>
       </div>
     </dialog>
   );
