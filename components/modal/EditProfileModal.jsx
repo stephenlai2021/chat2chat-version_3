@@ -28,17 +28,27 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import { AiOutlineCloudUpload } from "react-icons/ai";
 
 export default function EditProfileModal({ id, userData }) {
+  const userNameInputBoxRef = useRef(null);
+  const imageFileInputBoxRef = useRef(null);
+
+  const { userImage, setUserImage, userDataStore } = useStore();
+
   const [file, setFile] = useState(null);
   const [user, setUser] = useState(null);
   const [image, setImage] = useState(null);
-  const [userName, setUserName] = useState(userData.name);
+  const [userName, setUserName] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [showUploadBtn, setShowUploadBtn] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(null);
 
-  const imageFileInputBoxRef = useRef(null);
+  useEffect(() => {
+    if (userData?.name) setUserName(userData?.name);
+  }, [userData]);
 
-  const { userImage, setUserImage, userDataStore } = useStore();
+  useEffect(() => {
+    userNameInputBoxRef.current.focus();
+  // }, [userNameInputBoxRef]);
+  }, []);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -99,6 +109,7 @@ export default function EditProfileModal({ id, userData }) {
         icon: "🥰",
         position: "bottom-center",
       });
+      // setUserName("")
       return;
     }
 
@@ -123,7 +134,7 @@ export default function EditProfileModal({ id, userData }) {
           getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
             // Reset file && upload progress state and update message with download URL
             setFile(null);
-            setUploadProgress(null);            
+            setUploadProgress(null);
             setImage(downloadURL);
             setUserImage(downloadURL);
 
@@ -135,7 +146,7 @@ export default function EditProfileModal({ id, userData }) {
               querySnapshot.forEach(async (document) => {
                 console.log(document.id, document.data());
                 await updateDoc(doc(firestore, "chatrooms", document.id), {
-                  [`usersData.${userData?.id}.avatarUrl`]: downloadURL
+                  [`usersData.${userData?.id}.avatarUrl`]: downloadURL,
                 });
               });
               console.log("User avatar updated successfully !");
@@ -143,7 +154,7 @@ export default function EditProfileModal({ id, userData }) {
                 icon: "🥰",
                 position: "bottom-center",
               });
-              setImagePreview(null)
+              setImagePreview(null);
               return;
             }
 
@@ -157,7 +168,7 @@ export default function EditProfileModal({ id, userData }) {
                 console.log(document.id, document.data());
                 await updateDoc(doc(firestore, "chatrooms", document.id), {
                   [`usersData.${userData?.id}.name`]: userName,
-                  [`usersData.${userData?.id}.avatarUrl`]: downloadURL
+                  [`usersData.${userData?.id}.avatarUrl`]: downloadURL,
                 });
               });
               console.log("User avatar and name updated successfully !");
@@ -165,7 +176,8 @@ export default function EditProfileModal({ id, userData }) {
                 icon: "🥰",
                 position: "bottom-center",
               });
-              setImagePreview(null)
+              setImagePreview(null);
+              // setUserName("")
               return;
             }
           });
@@ -359,37 +371,30 @@ export default function EditProfileModal({ id, userData }) {
             )}
 
             <div
-              className={`relative flex justify-center mt-3
+              className={`relative flex flex-col items-center justify-center mt-3
               `}
             >
               <input
                 type="text"
-                value={userName}
+                id="userName"
+                value={userData?.name ? userName : ''}
+                ref={userNameInputBoxRef}
                 autoFocus
                 onFocus={(e) => e.currentTarget.select()}
-                // onChange={handleInputChange}
                 onChange={(e) => setUserName(e.target.value)}
                 placeholder="Name"
                 className={`
-                  px-3 bg-base-300 py-3 rounded-xl outline-none w-full
-                  flex justify-cente text-center
-                `}
+                    px-3 bg-base-300 py-3 rounded-xl outline-none w-full
+                    text-center
+                  `}
               />
-              {/* <IoCloseCircleOutline
-                className={`
-                w-[22px] h-[22px] absolute top-[50%] translate-y-[-50%] right-3 hover:cursor-pointer
-                `}
-                onClick={() => setIsSearch(false)}
-              /> */}
             </div>
+
           </div>
         </div>
 
         {/* Close Button */}
         <div className="modal-action flex justify-center ">
-          {/* <button className="btn" onClick={handleClose}>
-            Close
-          </button> */}
           <button className="btn bg-neutral" onClick={handleUpload}>
             Update
           </button>

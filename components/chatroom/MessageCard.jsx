@@ -76,7 +76,7 @@ function MessageCard({ message, me, other, deleteMsg }) {
         `}
       >
         <div className="chat-image avatar">
-          <div className="w-8 rounded-full bg-[url('/avatar.png')]">
+          <div className="w-6 rounded-full bg-[url('/avatar.png')]">
             <img
               tabIndex={0}
               src={isMessageFromMe ? me.avatarUrl : other.avatarUrl}
