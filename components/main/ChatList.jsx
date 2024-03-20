@@ -84,42 +84,23 @@ export default function ChatList() {
     setUserDataStore,
   } = useStore();
 
-  const handleTabClick = (tab) => setActiveTab(tab);
-
   const getUserData = async () => {
     const {
       data: { session },
     } = await supabase.auth.getSession();
     setUserCred(session?.user);
 
-    /*
-      Donnot delete !!! 
-      Get document Once 
-    */
+    /* Get document Once */
     // const docRef = doc(firestore, "users", userCred.email);
     // const docSnap = await getDoc(docRef);
     // if (docSnap.exists()) {
     //   setUserData(docSnap.data());
     //   setUserDataStore(docSnap.data());
     // }
-
-    /*
-      Do not delete !!! 
-      Listen for document Change 
-    */
-    // const unsubUser = onSnapshot(
-    //   doc(firestore, "users", session?.user?.email),
-    //   (doc) => {
-    //     console.log("userData: ", doc.data());
-    //     setUserData(doc.data());
-    //     setUserDataStore(doc.data())
-    //   }
-    // );
-    // return () => unsubUser();
   };
 
   useEffect(() => {
-    if (userCred) {
+    if (!userCred) return
       const unsubUser = onSnapshot(
         doc(firestore, "users", userCred?.email),
         (doc) => {
@@ -129,7 +110,6 @@ export default function ChatList() {
         }
       );
       return () => unsubUser();
-    }
   }, [userCred]);
 
   /* Get user data once */
@@ -158,7 +138,6 @@ export default function ChatList() {
     // Do not delete this line !!!
     if (!userData?.id) return;
 
-    // setChatListLoading(true);
     const chatroomsQuery = query(
       collection(firestore, "chatrooms"),
       where("users", "array-contains", userData?.id)
@@ -549,12 +528,7 @@ export default function ChatList() {
           )}
         </div>
 
-        <BottomNavbar
-          userData={userData}
-          // languages={languages}
-          // logoutLoading={logoutLoading}
-          // logoutClick={logoutClick}
-        />
+        <BottomNavbar userData={userData} />
       </main>
 
       <CreateGroupModal id="createGroupModal" />

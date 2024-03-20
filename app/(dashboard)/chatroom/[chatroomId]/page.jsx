@@ -56,9 +56,11 @@ export default function ChatroomIdPage({ params: { chatroomId } }) {
 
   const messagesContainerRef = useRef(null);
 
+  // const [me, setMe] = useState(null)
   const [image, setImage] = useState(null);
   const [other, setOther] = useState(null);
   const [message, setMessage] = useState("");
+  const [userCred, setUserCred]=useState(null)
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState([]);
 
@@ -168,6 +170,34 @@ export default function ChatroomIdPage({ params: { chatroomId } }) {
   };
 
   /*
+    Get User Data
+  */
+  // const getUserData = async () => {
+  //   const {
+  //     data: { session },
+  //   } = await supabase.auth.getSession();
+  //   setUserCred(session?.user);
+  // };  
+
+  // useEffect(() => {
+  //   getUserData();
+  // }, []);
+
+  // useEffect(() => {
+  //   if (userCred) {
+  //     const unsubUser = onSnapshot(
+  //       doc(firestore, "users", userCred?.email),
+  //       (doc) => {
+  //         console.log("userData: ", doc.data());
+  //         setMe(doc.data());
+  //       }
+  //     );
+  //     return () => unsubUser();
+  //   }
+  // }, [userCred]); 
+  /* End of Get User Data */
+
+  /*
     Auto scroll to the bottom of the messages container after
     click user card component.
     Not working at the first loading !!!
@@ -191,13 +221,12 @@ export default function ChatroomIdPage({ params: { chatroomId } }) {
 
   /* 
     Get Messages 
-    This runs 1 time !!!
+    This runs once !!!
   */
   useEffect(() => {
     // Do not delete this line !!!
     // if (!chatroomId) return;
 
-    // setLoading(true);
     const unsubMsgs = onSnapshot(
       query(
         collection(firestore, "messages"),
@@ -217,12 +246,12 @@ export default function ChatroomIdPage({ params: { chatroomId } }) {
       }
     );
     return () => unsubMsgs();
-    // }, [chatroomId]);
   }, []);
 
   /* 
     Get selectedChatroom in realtime to get otherUserData 
     because we need to update newMessage(message count) in Chatlist live 
+    This runs once !!!
   */
   useEffect(() => {
     const unsub = onSnapshot(doc(firestore, "chatrooms", chatroomId), (doc) => {
