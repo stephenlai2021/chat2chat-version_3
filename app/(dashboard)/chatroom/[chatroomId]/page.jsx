@@ -3,6 +3,9 @@
 /* react */
 import { useState, useEffect, useRef } from "react";
 
+/* supabase */
+import useSupabaseClient from "@/lib/supabase/client";
+
 /* hooks */
 import useWindowSize from "@/hooks/useWindowSize";
 
@@ -40,29 +43,25 @@ import moment from "moment";
 // export default function ChatroomIdPage({ params: { chatroomId } }) {
 export default function ChatroomIdPage() {
   const size = useWindowSize();
-  const { 
-    mobile, 
-    toggleMobile, 
-    userDataStore,
-    selectedChatroom, 
-  } = useStore();
+  const { mobile, toggleMobile, userDataStore, selectedChatroom } = useStore();
 
-  // const me = selectedChatroom?.myData;
+  const supabase = useSupabaseClient();
+
+  // We want user data dynamic, so use userDataStore because it came from userData(realtime)
   const me = userDataStore;
+  // const me = selectedChatroom?.myData;
   const chatroomId = selectedChatroom?.id;
   const theOther = selectedChatroom?.otherUserData;
+  // console.log('theOther: ', theOther)
 
   const messagesContainerRef = useRef(null);
 
   const [image, setImage] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
-
   const [other, setOther] = useState(null);
-  const [msgCount, setMsgCount] = useState(0);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [messages, setMessages] = useState([]);
   const [otherUserData, setOtherUserData] = useState(null);
-  const [isMessageBottom, setIsMessageBottom] = useState(false);
 
   const deleteMsg = async (id) => {
     try {
@@ -125,12 +124,12 @@ export default function ChatroomIdPage() {
     put messages in db 
     This function triggers realtime snapshot (messages && chatrooms) twice !!!
   */
-  const sendMessage = async (msg) => {
+  const sendMessage = async () => {
     if (message == "" && image == null) return;
     try {
       let newMessage = {
         image,
-        sender: me.id,
+        sender: me?.id,
         content: message,
         chatRoomId: chatroomId,
         time: serverTimestamp(),
@@ -156,13 +155,12 @@ export default function ChatroomIdPage() {
         lastImage: image ? image : "",
         lastMessage: message ? message : "",
         lastMessageSentTime: serverTimestamp(),
-        [`usersData.${otherUserData.id}.newMessage`]:
-          otherUserData.newMessage + 1,
+        [`usersData.${other?.id}.newMessage`]:
+          other?.newMessage + 1
       });
     } catch (error) {
       console.error("Error sending message:", error.message);
     }
-    // }
 
     // Scroll to the bottom after sending a message
     if (messagesContainerRef.current) {
@@ -195,6 +193,7 @@ export default function ChatroomIdPage() {
 
   /* 
     Get Messages 
+    This runs 1 time !!!
   */
   useEffect(() => {
     // Do not delete this line !!!
@@ -224,38 +223,19 @@ export default function ChatroomIdPage() {
   }, []);
 
   /* 
-    Get Other User
-    We get otherUser because we want the avatar in top menu get updated in realtime
-  */
-  useEffect(() => {
-    const unsubOtherUser = onSnapshot(
-      doc(firestore, "users", theOther.email),
-      (doc) => {
-        setOther(doc.data());
-        console.log('otherUser: ', theOther)
-      }
-    );
-    return () => unsubOtherUser();
-  }, [theOther]);
-
-  /* 
-    Do not delete !!!
-    Get selectedChatroom in order to get otherUserData 
-    to set the message count in realtime
+    Get selectedChatroom in realtime to get otherUserData 
+    because we need to update newMessage(message count) live 
   */
   useEffect(() => {
     const unsub = onSnapshot(doc(firestore, "chatrooms", chatroomId), (doc) => {
       const selectedRoom = doc.data();
-      console.log("selectedChatroom: ", selectedRoom);
-
+      
       const otherUserData =
-        selectedRoom.usersData[
-          selectedRoom.users.find((id) => id !== me.id)
-        ];
-      setOtherUserData(otherUserData);
+      selectedRoom.usersData[selectedRoom.users.find((id) => id !== me?.id)];
+      setOther(otherUserData);
+      console.log("Get otherUserData: ", selectedRoom);
     });
     return () => unsub();
-  // }, [chatroomId]);
   }, []);
 
   return (

@@ -79,17 +79,14 @@ export default function BottomNavbar({ userData }) {
           {userData?.avatarUrl ? (
             <img
               src={userData?.avatarUrl}
-              // onClick={() =>
-              //   document.getElementById("editProfileModal").showModal()
-              // }
+              onClick={() =>
+                document.getElementById("editProfileModalBottomNav").showModal()
+              }
               className="object-cover rounded-full w-[24px] h-[24px] font-bold text-base-content"
             />
           ) : (
             <img
-              src="/avatar.png"
-              // onClick={() =>
-              //   document.getElementById("editProfileModal").showModal()
-              // }
+              src="/avatar.png"              
               className="object-cover rounded-full w-[24px] h-[24px] font-bold text-base-content"
             />
           )}
@@ -169,7 +166,7 @@ export default function BottomNavbar({ userData }) {
           </div>
         </div> */}
 
-        <EditProfileModal id="editProfileModal" userData={userData} />
+        <EditProfileModal id="editProfileModalBottomNav" userData={userData} />
         <AddFriendModal id="addFriendModalBottomNav" userData={userData} />
       </div>
     </div>

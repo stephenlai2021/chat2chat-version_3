@@ -189,7 +189,7 @@ export default function EditProfileModal({ id, userData }) {
   const handleClose = () => {
     setImagePreview(null);
     // imageFileInputBoxRef.current.value = "";
-    document.getElementById("editProfileModal").close();
+    document.getElementById(id).close();
   };
 
   return (

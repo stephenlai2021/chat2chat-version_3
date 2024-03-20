@@ -117,6 +117,7 @@ export default function ChatList() {
     return () => unsubUser();
   };
 
+  /* Get user data once */
   useEffect(() => {
     getUserData();   
   }, []);
@@ -255,7 +256,6 @@ export default function ChatList() {
   // };
 
   const openChat = async (chatroom) => {
-    // setSelectedChatroom(null);
     const data = {
       id: chatroom.id,
       myData: userData,
@@ -266,9 +266,6 @@ export default function ChatList() {
     toggleMobile();
     setSelectedChatroom(data);
     router.push(`/chatroom/${chatroom.id}`);
-
-    // const tempData = data.otherData;
-    // setOtherData(tempData);
   };
 
   const logoutClick = async () => {
@@ -471,17 +468,10 @@ export default function ChatList() {
             />
           </div>
 
-          {/* {activeTab === "groupChat" && (
-            <div className="h-full flex flex-col items-center justify-center">
-              <h1>Group Chat</h1>
-            </div>
-          )} */}
-
           {/*
             1. 如果讀取到聊天室資料, 停止加載, 並立即渲染聊天室UI
             2. 過了 5 秒後加載圖標會自動停止, 如果有讀取到聊天室資料, 渲染聊天室UI, 反之不做任何渲染 
           */}
-          {/* {activeTab === "privateChat" && !chatListLoading && ( */}
           {!chatListLoading && (
             <>
               {filteredChatrooms?.map((chatroom) => (
@@ -522,7 +512,6 @@ export default function ChatList() {
           )}
 
           {/* 組件載入後立刻顯示加載圖示 */}
-          {/* {activeTab === "privateChat" && chatListLoading && ( */}
           {chatListLoading && (
             <div className="py-3">
               {"abcd".split("").map((i) => (
@@ -534,7 +523,6 @@ export default function ChatList() {
           {/* 
             經過 5 秒後停止加載圖標, 如果讀到的聊天室資料是空的, 印出 "您還沒有任何聊天室, 請加朋友聊天"
           */}
-          {/* {activeTab === "privateChat" && */}
           {userChatrooms.length === 0 && !chatListLoading && (
             <div className="mt-10 px-3 flex flex-col items-center justify-center">
               <img
@@ -548,9 +536,9 @@ export default function ChatList() {
 
         <BottomNavbar
           userData={userData}
-          languages={languages}
-          logoutLoading={logoutLoading}
-          logoutClick={logoutClick}
+          // languages={languages}
+          // logoutLoading={logoutLoading}
+          // logoutClick={logoutClick}
         />
       </main>
 

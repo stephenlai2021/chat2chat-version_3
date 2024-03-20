@@ -170,8 +170,7 @@ function Main() {
         id: data?.user?.id,
         name,
         email,
-        avatarUrl,
-        newMessage
+        avatarUrl
       });
       console.log("user data created !");
       setConfirm(true);
