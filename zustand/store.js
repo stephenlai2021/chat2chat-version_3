@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 export const useStore = create(
   persist(
     (set) => ({
-      mobile: true,
+      mobile: false,
       loginUser: null,
       userImage: null,
       userDataStore: null,
