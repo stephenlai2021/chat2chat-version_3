@@ -250,15 +250,15 @@ export default function ChatList() {
   // };
 
   const openChat = async (chatroom) => {
-    const data = {
-      id: chatroom.id,
-      myData: userData,
-      otherUserData:
-        chatroom.usersData[chatroom.users.find((id) => id !== userData.id)],
-    };
+    // const data = {
+    //   id: chatroom.id,
+    //   myData: userData,
+    //   otherUserData:
+    //     chatroom.usersData[chatroom.users.find((id) => id !== userData.id)],
+    // };
 
     toggleMobile();
-    setSelectedChatroom(data);
+    // setSelectedChatroom(data);
     router.push(`/chatroom/${chatroom.id}`);
   };
 
