@@ -89,7 +89,8 @@ export default function ChatList() {
   const getUserData = async () => {
     const {
       data: { session },
-    } = await supabase.auth.getSession();   
+    } = await supabase.auth.getSession();
+    setUserCred(session?.user);
 
     /*
       Donnot delete !!! 
@@ -106,20 +107,34 @@ export default function ChatList() {
       Do not delete !!! 
       Listen for document Change 
     */
-    const unsubUser = onSnapshot(
-      doc(firestore, "users", session?.user?.email),
-      (doc) => {
-        console.log("userData: ", doc.data());
-        setUserData(doc.data());
-        setUserDataStore(doc.data())
-      }
-    );
-    return () => unsubUser();
+    // const unsubUser = onSnapshot(
+    //   doc(firestore, "users", session?.user?.email),
+    //   (doc) => {
+    //     console.log("userData: ", doc.data());
+    //     setUserData(doc.data());
+    //     setUserDataStore(doc.data())
+    //   }
+    // );
+    // return () => unsubUser();
   };
+
+  useEffect(() => {
+    if (userCred) {
+      const unsubUser = onSnapshot(
+        doc(firestore, "users", userCred?.email),
+        (doc) => {
+          console.log("userData: ", doc.data());
+          setUserData(doc.data());
+          setUserDataStore(doc.data());
+        }
+      );
+      return () => unsubUser();
+    }
+  }, [userCred]);
 
   /* Get user data once */
   useEffect(() => {
-    getUserData();   
+    getUserData();
   }, []);
 
   /* 

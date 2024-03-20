@@ -40,8 +40,8 @@ import { useStore } from "@/zustand/store";
 /* utils */
 import moment from "moment";
 
-// export default function ChatroomIdPage({ params: { chatroomId } }) {
-export default function ChatroomIdPage() {
+export default function ChatroomIdPage({ params: { chatroomId } }) {
+// export default function ChatroomIdPage() {
   const size = useWindowSize();
   const { mobile, toggleMobile, userDataStore, selectedChatroom } = useStore();
 
@@ -50,8 +50,8 @@ export default function ChatroomIdPage() {
   // We want user data dynamic, so use userDataStore because it came from userData(realtime)
   const me = userDataStore;
   // const me = selectedChatroom?.myData;
-  const chatroomId = selectedChatroom?.id;
-  const theOther = selectedChatroom?.otherUserData;
+  // const chatroomId = selectedChatroom?.id;
+  // const theOther = selectedChatroom?.otherUserData;
   // console.log('theOther: ', theOther)
 
   const messagesContainerRef = useRef(null);
@@ -61,7 +61,6 @@ export default function ChatroomIdPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState([]);
-  const [otherUserData, setOtherUserData] = useState(null);
 
   const deleteMsg = async (id) => {
     try {
@@ -133,10 +132,9 @@ export default function ChatroomIdPage() {
         content: message,
         chatRoomId: chatroomId,
         time: serverTimestamp(),
-        // date: moment(serverTimestamp()).format("l"),
         date: getMonth() + "/" + getDay(),
       };
-      console.log("mmdd: ", getMonth() + "/" + getDay());
+      // console.log("mmdd: ", getMonth() + "/" + getDay());
 
       /*
         Clear the input field before sending the message
@@ -224,20 +222,19 @@ export default function ChatroomIdPage() {
 
   /* 
     Get selectedChatroom in realtime to get otherUserData 
-    because we need to update newMessage(message count) live 
+    because we need to update newMessage(message count) in Chatlist live 
   */
   useEffect(() => {
     const unsub = onSnapshot(doc(firestore, "chatrooms", chatroomId), (doc) => {
-      const selectedRoom = doc.data();
-      
+      const selectedRoom = doc.data();      
       const otherUserData =
       selectedRoom.usersData[selectedRoom.users.find((id) => id !== me?.id)];
       setOther(otherUserData);
-      console.log("Get otherUserData: ", selectedRoom);
+      console.log(`${otherUserData.name}: ${JSON.stringify(otherUserData, null, 2)}`);
     });
     return () => unsub();
   }, []);
-
+  
   return (
     <div
       className={`
