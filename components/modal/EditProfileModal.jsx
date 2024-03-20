@@ -395,7 +395,7 @@ export default function EditProfileModal({ id, userData }) {
 
         {/* Close Button */}
         <div className="modal-action flex justify-center ">
-          <button className="btn bg-neutral" onClick={handleUpload}>
+          <button className="btn bg-neutral text-neutral-content" onClick={handleUpload}>
             Update
           </button>
         </div>
