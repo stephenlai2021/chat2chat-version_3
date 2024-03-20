@@ -63,31 +63,30 @@ export default function BottomNavbar({ userData }) {
 
         <div
           className={`
-            w-1/3 flex flex-col justify-center items-center hover:cursor-pointer     
+            w-1/3 flex flex-col justify-center items-center     
           `}
         >
-          <AiOutlineUsergroupAdd className="w-[24px] h-[24px] font-bold text-base-content" />
+          <AiOutlineUsergroupAdd className="w-[24px] h-[24px] font-bold text-base-content hover:cursor-pointer" />
           <span className="btm-nav-label text-xs">Create Group</span>
         </div>
 
         <div
           className={`
-            w-1/3 flex flex-col justify-center items-center cursor-pointer   
+            w-1/3 flex flex-col justify-center items-center 
           `}
         >
-          {/* <AiOutlineUsergroupAdd className="w-[24px] h-[24px] font-bold text-base-content" /> */}
           {userData?.avatarUrl ? (
             <img
               src={userData?.avatarUrl}
               onClick={() =>
                 document.getElementById("editProfileModalBottomNav").showModal()
               }
-              className="object-cover rounded-full w-[24px] h-[24px] font-bold text-base-content"
+              className="object-cover rounded-full w-[24px] h-[24px] font-bold text-base-content hover:cursor-pointer"
             />
           ) : (
             <img
               src="/avatar.png"              
-              className="object-cover rounded-full w-[24px] h-[24px] font-bold text-base-content"
+              className="object-cover rounded-full w-[24px] h-[24px] font-bold text-base-content hover:cursor-pointer"
             />
           )}
           <span className="btm-nav-label text-xs">You</span>
@@ -166,8 +165,8 @@ export default function BottomNavbar({ userData }) {
           </div>
         </div> */}
 
-        <EditProfileModal id="editProfileModalBottomNav" userData={userData} />
         <AddFriendModal id="addFriendModalBottomNav" userData={userData} />
+        <EditProfileModal id="editProfileModalBottomNav" userData={userData} />
       </div>
     </div>
   );

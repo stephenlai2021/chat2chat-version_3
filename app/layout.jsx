@@ -51,6 +51,7 @@ const inter = Inter({ subsets: ["latin"] });
 export default function RootLayout({ children }) {
   const path = usePathname();
   const size = useWindowSize();
+  
 
   if (path == "/login" || path == "/register") {
     return (
